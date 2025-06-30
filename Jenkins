@@ -4,13 +4,26 @@ pipeline {
     stages {
         stage('Install Dependencies') {
             steps {
-                sh 'pip install -r requirements.txt'
+                bat 'pip install -r requirements.txt'
             }
         }
 
-        stage('Run Selenium Tests') {
+        stage('Run Tests') {
             steps {
-                sh 'pytest tests/ --maxfail=1 --disable-warnings'
+                bat 'pytest tests/ --html=report.html --self-contained-html'
+            }
+        }
+
+        stage('Publish Report') {
+            steps {
+                publishHTML(target: [
+                    reportName: 'Test Report',
+                    reportDir: '.',               // location of report.html
+                    reportFiles: 'report.html',
+                    keepAll: true,
+                    alwaysLinkToLastBuild: true,
+                    allowMissing: false
+                ])
             }
         }
     }
